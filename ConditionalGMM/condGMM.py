@@ -19,8 +19,7 @@ class CondGMM(object):
             default is `None`
 
     """
-    def __init__(self, weights, means, covs,
-                 fixed_indices, fixed_components = None):
+    def __init__(self, weights, means, covs, fixed_indices, fixed_components = None):
         assert isinstance(weights, (list, np.ndarray))
         assert isinstance(means, (list, np.ndarray))
         assert isinstance(covs, (list, np.ndarray))
@@ -28,7 +27,7 @@ class CondGMM(object):
         weights = np.asarray(weights)
         means = np.asarray(means)
         covs = np.asarray(covs)
-        fixed_indices = np.asarray(fixed_indices, dtype=np.int)
+        fixed_indices = np.asarray(fixed_indices)
         assert weights.ndim == 1
         assert means.ndim == 2
         assert covs.ndim == 3
@@ -100,8 +99,7 @@ class CondGMM(object):
         mus = np.array([d._mu_2() for d in dists])
         covs = np.array([d._Sigma_22() for d in dists])
 
-        probs = w*np.array([sp.stats.multivariate_normal.pdf(x2, mean=mus[i], cov=covs[i])
-                                       for i in range(len(w))])
+        probs = w*np.array([sp.stats.multivariate_normal.pdf(x2, mean=mus[i], cov=covs[i]) for i in range(len(w))])
         if component_probs:
             return probs
         else:
@@ -270,7 +268,7 @@ class CondGMM(object):
             if n == 0: #Skip if no draws
                 continue
             rvs_i = np.atleast_2d(dists[i].rvs(x2 = x2, size = n))
-            rvs[i == components] = rvs_i
+            rvs[i == components] = rvs_i.reshape(-1, 1)
 
         if component_labels:
             return rvs, components
