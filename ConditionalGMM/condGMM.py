@@ -98,8 +98,9 @@ class CondGMM(object):
         dists = self.conditionalMVNs
         mus = np.array([d._mu_2() for d in dists])
         covs = np.array([d._Sigma_22() for d in dists])
-
-        probs = w*np.array([sp.stats.multivariate_normal.pdf(x2, mean=mus[i], cov=covs[i]) for i in range(len(w))])
+        
+        probs = w*np.array([sp.stats.multivariate_normal.pdf(x2, mean=mus[i], cov=covs[i], allow_singular=True) for i in range(len(w))])
+        
         if component_probs:
             return probs
         else:
@@ -268,7 +269,10 @@ class CondGMM(object):
             if n == 0: #Skip if no draws
                 continue
             rvs_i = np.atleast_2d(dists[i].rvs(x2 = x2, size = n))
-            rvs[i == components] = rvs_i.reshape(-1, 1)
+            if rvs.shape == rvs_i.shape:   
+                rvs[i == components] = rvs_i
+            else:
+                rvs[i == components] = rvs_i.reshape(-1, 1)
 
         if component_labels:
             return rvs, components
